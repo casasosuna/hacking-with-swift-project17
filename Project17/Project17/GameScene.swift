@@ -22,6 +22,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let possibleEnemies = ["ball", "hammer", "tv"]
     var isGameOver = false
     var gameTimer: Timer?
+    var nestedTimer: Timer?
+    var oneTimeTimer: Timer?
     var runCount = 0
     
     override func didMove(to view: SKView) {
@@ -73,8 +75,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             }
         }
         
-        gameTimer = Timer.scheduledTimer(timeInterval: 20, target: self, selector: #selector(fireTimer), userInfo: nil, repeats: false)
-        gameTimer = Timer.scheduledTimer(timeInterval: 38, target: self, selector: #selector(fireTimerAgain), userInfo: nil, repeats: false)
+        oneTimeTimer = Timer.scheduledTimer(timeInterval: 20, target: self, selector: #selector(fireTimer), userInfo: nil, repeats: false)
+        oneTimeTimer = Timer.scheduledTimer(timeInterval: 38, target: self, selector: #selector(fireTimerAgain), userInfo: nil, repeats: false)
         
     }
     
@@ -129,6 +131,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         addChild(explosion)
         
         player.removeFromParent()
+        gameTimer?.invalidate()
+        nestedTimer?.invalidate()
+        oneTimeTimer?.invalidate()
+        
         
         isGameOver = true
     }
@@ -139,7 +145,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     @objc func fireTimer() {
         
-        _ = Timer.scheduledTimer(withTimeInterval: 0.9, repeats: true) { timer in
+        nestedTimer = Timer.scheduledTimer(withTimeInterval: 0.9, repeats: true) { timer in
+            print("2 Nest")
             self.runCount += 1
             
             guard let enemy = self.possibleEnemies.randomElement() else { return }
@@ -163,7 +170,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     @objc func fireTimerAgain() {
         
-        _ = Timer.scheduledTimer(withTimeInterval: 0.35, repeats: true) { timer in
+        nestedTimer = Timer.scheduledTimer(withTimeInterval: 0.35, repeats: true) { timer in
+            print("THREE Nest")
             guard let enemy = self.possibleEnemies.randomElement() else { return }
             
             let sprite = SKSpriteNode(imageNamed: enemy)
